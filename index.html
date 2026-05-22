@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¿Cuál es tu track? · Ohana Colombia</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --purple: #6C5CE7;
+    --purple-light: #a29bfe;
+    --purple-dark: #4a3cb8;
+    --purple-bg: #f0eeff;
+    --green: #00b894;
+    --green-bg: #e8faf5;
+    --blue: #0984e3;
+    --blue-bg: #e8f4fd;
+    --amber: #fdcb6e;
+    --amber-dark: #e17055;
+    --text: #1a1a2e;
+    --text-muted: #636e72;
+    --text-light: #b2bec3;
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --border: rgba(0,0,0,0.08);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --track1: #00b894;
+    --track1-bg: #e8faf5;
+    --track1-text: #006d55;
+    --track2: #0984e3;
+    --track2-bg: #e8f4fd;
+    --track2-text: #055fa3;
+    --track3: #6C5CE7;
+    --track3-bg: #f0eeff;
+    --track3-text: #4a3cb8;
+  }
+
+  html { font-size: 16px; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1rem;
+  }
+
+  .screen { display: none; width: 100%; max-width: 640px; padding: 3rem 0 4rem; animation: fadeUp 0.35s ease; }
+  .screen.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── INTRO ── */
+  .intro-logo {
+    width: 88px; height: 88px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 100%);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 36px;
+  }
+
+  .intro-eyebrow {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+    color: var(--purple); text-transform: uppercase; text-align: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .intro-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.2rem, 6vw, 3rem);
+    line-height: 1.1;
+    text-align: center;
+    color: var(--text);
+    margin-bottom: 1rem;
+  }
+  .intro-title em { font-style: italic; color: var(--purple); }
+
+  .intro-sub {
+    font-size: 1rem; line-height: 1.65; color: var(--text-muted);
+    text-align: center; max-width: 480px; margin: 0 auto 2rem;
+  }
+
+  .track-pills {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+  .track-pill {
+    padding: 5px 16px; border-radius: 20px; font-size: 13px; font-weight: 500;
+    border: 1.5px solid;
+  }
+  .track-pill.t1 { background: var(--track1-bg); color: var(--track1-text); border-color: var(--track1); }
+  .track-pill.t2 { background: var(--track2-bg); color: var(--track2-text); border-color: var(--track2); }
+  .track-pill.t3 { background: var(--track3-bg); color: var(--track3-text); border-color: var(--track3); }
+
+  .meta { font-size: 13px; color: var(--text-light); text-align: center; margin-bottom: 2rem; }
+  .meta span { margin: 0 8px; }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    display: block; width: 100%; padding: 17px;
+    background: var(--purple); color: #fff;
+    border: none; border-radius: var(--radius); font-family: 'DM Sans', sans-serif;
+    font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.18s;
+    letter-spacing: 0.01em;
+  }
+  .btn-primary:hover { background: var(--purple-dark); transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { background: #dfe6e9; color: #b2bec3; cursor: not-allowed; transform: none; }
+
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 18px; background: transparent; color: var(--text-muted);
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; cursor: pointer; transition: all 0.15s;
+  }
+  .btn-ghost:hover { background: #f1f3f5; color: var(--text); }
+
+  /* ── PROGRESS ── */
+  .progress-bar-wrap { margin-bottom: 2.5rem; }
+  .progress-steps {
+    display: flex; align-items: center; gap: 0; margin-bottom: 0.75rem;
+  }
+  .step-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; transition: all 0.25s; flex-shrink: 0;
+    background: #f1f3f5; color: var(--text-light);
+  }
+  .step-dot.done { background: var(--purple); color: #fff; }
+  .step-dot.active { background: var(--purple); color: #fff; box-shadow: 0 0 0 4px var(--purple-bg); }
+  .step-line { flex: 1; height: 2px; background: #f1f3f5; transition: background 0.3s; }
+  .step-line.done { background: var(--purple); }
+  .progress-label { font-size: 12px; color: var(--text-light); }
+
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 2rem; margin-bottom: 1.5rem;
+  }
+  .q-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    color: var(--purple); text-transform: uppercase; margin-bottom: 0.75rem;
+  }
+  .q-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.45rem; line-height: 1.25; color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+  .q-hint { font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5; }
+
+  /* ── OPTIONS ── */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 16px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--surface);
+    cursor: pointer; transition: all 0.15s; text-align: left;
+  }
+  .option:hover { border-color: var(--purple-light); background: var(--purple-bg); }
+  .option.selected { border-color: var(--purple); background: var(--purple-bg); }
+  .option.exclusive.selected { border-color: var(--text-muted); background: #f8f9fa; }
+
+  .opt-indicator {
+    width: 20px; height: 20px; border-radius: 50%; border: 2px solid #dfe6e9;
+    flex-shrink: 0; margin-top: 1px; transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .option.radio .opt-indicator { border-radius: 50%; }
+  .option.checkbox .opt-indicator { border-radius: 5px; }
+  .option.selected .opt-indicator { border-color: var(--purple); background: var(--purple); }
+  .option.selected .opt-indicator::after { content: '✓'; color: #fff; font-size: 11px; font-weight: 700; }
+  .option.exclusive.selected .opt-indicator { border-color: var(--text-muted); background: var(--text-muted); }
+
+  .opt-text { font-size: 14px; line-height: 1.45; color: var(--text); font-weight: 400; }
+  .opt-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── SCALE ── */
+  .scale-wrap { margin-top: 0.5rem; }
+  .scale-labels { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+  .scale-label { font-size: 12px; color: var(--text-muted); }
+  .scale-btns { display: flex; gap: 8px; }
+  .scale-btn {
+    flex: 1; padding: 14px 4px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border); background: var(--surface);
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all 0.15s; color: var(--text-muted); text-align: center;
+  }
+  .scale-btn:hover { border-color: var(--purple-light); color: var(--purple); }
+  .scale-btn.selected { border-color: var(--purple); background: var(--purple); color: #fff; }
+
+  /* ── NAV ── */
+  .q-nav { display: flex; justify-content: space-between; align-items: center; }
+
+  /* ── RESULT ── */
+  .result-header { text-align: center; margin-bottom: 2rem; }
+  .result-badge {
+    display: inline-block; padding: 6px 20px; border-radius: 20px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 1.25rem;
+  }
+  .result-track-banner {
+    border-radius: var(--radius); padding: 2rem; margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  .result-track-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.5rem; font-weight: 400; margin-bottom: 0.5rem;
+  }
+  .result-track-desc { font-size: 15px; line-height: 1.6; opacity: 0.85; max-width: 440px; margin: 0 auto; }
+
+  .scores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.5rem; }
+  .score-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 1.25rem; text-align: center;
+  }
+  .score-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.75rem; }
+  .score-ring { margin: 0 auto 0.75rem; position: relative; width: 64px; height: 64px; }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring circle { fill: none; stroke-width: 5; }
+  .score-ring .bg { stroke: #f1f3f5; }
+  .score-ring .fg { stroke: var(--purple); stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+  .score-num { font-size: 1.5rem; font-weight: 600; color: var(--text); }
+
+  .rec-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem;
+  }
+  .rec-section-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;
+  }
+  .rec-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+    font-size: 14px; line-height: 1.5; color: var(--text);
+  }
+  .rec-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .rec-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+
+  .ohana-tag {
+    display: inline-block; background: var(--purple-bg); color: var(--purple-dark);
+    border: 1px solid var(--purple-light); border-radius: 6px;
+    padding: 6px 12px; font-size: 13px; margin: 4px 4px 4px 0;
+  }
+
+  .btn-restart {
+    display: block; width: 100%; padding: 16px;
+    background: transparent; color: var(--purple);
+    border: 2px solid var(--purple); border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: all 0.18s; margin-top: 1.5rem; text-align: center;
+  }
+  .btn-restart:hover { background: var(--purple-bg); }
+
+  .t1-color { color: var(--track1-text); }
+  .t2-color { color: var(--track2-text); }
+  .t3-color { color: var(--track3-text); }
+</style>
+</head>
+<body>
+
+<!-- ── INTRO ── -->
+<div class="screen active" id="screen-intro">
+  <div class="intro-logo">🌺</div>
+  <p class="intro-eyebrow">Ohana Program · Growth Colombia</p>
+  <h1 class="intro-title">¿Cuál es tu<br><em>track</em> de AI?</h1>
+  <p class="intro-sub">No importa si eres ingeniero, diseñador, PM, BA o researcher. Este diagnóstico mide el impacto real de cómo usas la inteligencia artificial en tu trabajo, y te dice exactamente qué te falta para sacarle más provecho.</p>
+  <div class="track-pills">
+    <span class="track-pill t1">Track 1 · Explorador</span>
+    <span class="track-pill t2">Track 2 · Practicante</span>
+    <span class="track-pill t3">Track 3 · Multiplicador</span>
+  </div>
+  <p class="meta"><span>~3 min</span>·<span>8 preguntas</span>·<span>100% anónimo</span></p>
+  <div style="background:#f0eeff;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;text-align:left;">
+    <p style="font-size:13px;color:#4a3cb8;line-height:1.6;margin:0">
+      <strong>Antes de empezar:</strong> No hay respuestas correctas ni incorrectas. Este diagnóstico solo es útil si respondes con honestidad sobre dónde estás hoy — no donde quisieras estar. Nadie va a juzgarte por tu resultado; al contrario, entre más preciso seas, más útil será la recomendación que recibas.
+    </p>
+  </div>
+  <button class="btn-primary" onclick="startQuiz()">Empezar diagnóstico →</button>
+</div>
+
+<!-- ── QUESTIONS ── -->
+<div class="screen" id="screen-quiz">
+  <div class="progress-bar-wrap">
+    <div class="progress-steps" id="progressSteps"></div>
+    <p class="progress-label" id="progressLabel"></p>
+  </div>
+  <div id="questionContainer"></div>
+  <div class="q-nav">
+    <button class="btn-ghost" id="btnBack" onclick="goBack()">← Atrás</button>
+    <button class="btn-primary" id="btnNext" onclick="goNext()" style="width:auto;padding:12px 28px" disabled>Siguiente →</button>
+  </div>
+</div>
+
+<!-- ── RESULT ── -->
+<div class="screen" id="screen-result">
+  <div id="resultContent"></div>
+  <button class="btn-restart" onclick="restart()">↺ Repetir diagnóstico</button>
+</div>
+
+<script>
+const questions = [
+  {
+    id: 'role',
+    eyebrow: 'Pregunta 1 · Tu perfil',
+    title: '¿Cuál es tu rol en el equipo?',
+    hint: 'Esto personaliza tu resultado. Si tienes un rol híbrido, elige el que mejor te describe.',
+    type: 'radio',
+    options: [
+      { text: 'Product Manager', sub: 'Estrategia de producto, priorización, stakeholders' },
+      { text: 'Ingeniero / Developer', sub: 'Desarrollo, arquitectura, código, calidad' },
+      { text: 'Diseñador / UX', sub: 'Diseño de producto, prototipado, sistemas de diseño' },
+      { text: 'Business Analyst / Data', sub: 'Métricas, análisis, reportes, insights de negocio' },
+      { text: 'Researcher', sub: 'Research de usuarios, entrevistas, síntesis de insights' },
+    ]
+  },
+  {
+    id: 'frecuencia',
+    eyebrow: 'Pregunta 2 · Uso real',
+    title: '¿Con qué frecuencia usas AI en tu trabajo esta semana?',
+    hint: 'Piensa en Claude, Cursor, Glean o cualquier otra herramienta de AI.',
+    type: 'radio',
+    options: [
+      { text: 'Nunca o casi nunca', sub: 'No la uso o la uso muy raramente' },
+      { text: 'Una o dos veces', sub: 'La usé para algo puntual esta semana' },
+      { text: 'Varias veces', sub: 'La uso algunos días para tareas específicas' },
+      { text: 'Todos los días', sub: 'Es parte de mi rutina de trabajo diaria' },
+      { text: 'Múltiples veces al día', sub: 'La tengo integrada en casi todo lo que hago' },
+    ],
+    scores: [0, 1, 2, 3, 4]
+  },
+  {
+    id: 'profundidad',
+    eyebrow: 'Pregunta 3 · Cómo la usas',
+    title: 'Cuando usas AI, ¿cómo describes lo que necesitas?',
+    hint: 'Elige la opción que mejor describe cómo lo haces hoy, no cómo crees que deberías hacerlo.',
+    type: 'radio',
+    options: [
+      { text: 'Tengo prompts guardados y reutilizables', sub: 'Los he probado, refinado y los reutilizo' },
+      { text: 'Le escribo algo corto y veo qué sale', sub: 'Un par de palabras o una frase' },
+      { text: 'Doy contexto del problema antes de pedir', sub: 'Explico la situación y qué necesito' },
+      { text: 'Defino rol, contexto, formato y restricciones', sub: 'Soy deliberado con lo que pido y cómo lo pido' },
+    ],
+    scores: [4, 0, 1, 3]
+  },
+  {
+    id: 'impacto',
+    eyebrow: 'Pregunta 4 · Impacto concreto',
+    title: '¿Puedes nombrar algo concreto que hiciste mejor o más rápido con AI en el último mes?',
+    hint: 'No importa el tamaño. Puede ser algo pequeño o algo grande.',
+    type: 'radio',
+    options: [
+      { text: 'No, no lo he notado o medido', sub: '' },
+      { text: 'Sí, ahorré tiempo en tareas repetitivas', sub: 'Cosas que hacía manualmente y ahora van más rápido' },
+      { text: 'Sí, mejoré la calidad de un entregable', sub: 'El output fue mejor gracias a AI' },
+      { text: 'Sí, resolví algo que sin AI habría tardado mucho más o no hubiera podido', sub: 'Un salto cualitativo real' },
+    ],
+    scores: [0, 1, 2, 4]
+  },
+  {
+    id: 'criterio',
+    eyebrow: 'Pregunta 5 · Criterio crítico',
+    title: 'Cuando AI te da un output, ¿qué haces?',
+    hint: 'No hay una sola forma correcta — cada situación es distinta. Elige la que más describe tu comportamiento habitual.',
+    type: 'radio',
+    options: [
+      { text: 'Lo contrasto con mi criterio o con otras fuentes', sub: 'No doy nada por sentado' },
+      { text: 'Lo uso casi siempre tal como viene', sub: '' },
+      { text: 'Evalúo si el enfoque fue el correcto para el problema', sub: 'Cuestiono el método, no solo el resultado' },
+      { text: 'Lo reviso y ajusto antes de usarlo', sub: 'Le hago cambios pero confío bastante en el output' },
+    ],
+    scores: [2, 0, 4, 1]
+  },
+  {
+    id: 'integracion',
+    eyebrow: 'Pregunta 6 · Integración al flujo',
+    title: '¿Cómo encaja AI en tu día a día de trabajo?',
+    hint: 'Elige la que mejor describe tu situación actual, sin importar si te parece suficiente o no.',
+    type: 'radio',
+    options: [
+      { text: 'Tengo flujos definidos donde AI siempre participa', sub: 'Está integrada en mi proceso, no es opcional' },
+      { text: 'La uso cuando estoy atascado o me acuerdo', sub: 'Es algo reactivo, no sistemático' },
+      { text: 'Diseñé flujos que otros también usan', sub: 'No solo yo, sino mi equipo se beneficia' },
+      { text: 'Es un paso más en algunas tareas específicas', sub: 'Tengo 1-2 momentos donde siempre la uso' },
+    ],
+    scores: [3, 0, 4, 1]
+  },
+  {
+    id: 'multiplicar',
+    eyebrow: 'Pregunta 7 · Multiplicar el impacto',
+    title: '¿Has compartido con alguien del equipo algo que aprendiste o construiste con AI?',
+    hint: 'Un prompt, un flujo, una forma de usarla, un resultado impactante.',
+    type: 'radio',
+    options: [
+      { text: 'No he compartido nada', sub: '' },
+      { text: 'Sí, informalmente le conté a alguien', sub: 'Una conversación, una demo rápida' },
+      { text: 'Sí, compartí algo concreto que otros usan', sub: 'Un prompt, una herramienta, un flujo' },
+      { text: 'Sí, lideré o propuse una práctica de equipo', sub: 'Algo que adoptó más de una persona' },
+    ],
+    scores: [0, 1, 2, 4]
+  },
+  {
+    id: 'barrera',
+    eyebrow: 'Pregunta 8 · Tu mayor barrera',
+    title: '¿Cuál es tu mayor obstáculo para usar más AI con impacto real?',
+    hint: 'Una sola respuesta, la que más resuene con tu situación actual.',
+    type: 'radio',
+    options: [
+      { text: 'No sé por dónde empezar o qué pedirle', sub: 'Me falta claridad sobre cómo usarla en mi trabajo' },
+      { text: 'No encuentro casos de uso claros para mi rol', sub: 'Veo que otros la usan pero no sé cómo aplicarlo a lo mío' },
+      { text: 'Le tengo desconfianza al output que genera', sub: 'No sé cuándo creerle y cuándo no' },
+      { text: 'El contexto de datos/seguridad me limita', sub: 'No sé qué puedo y no puedo hacer con herramientas de AI' },
+      { text: 'Ya la uso bastante, mi barrera es otra', sub: '' },
+    ]
+  }
+];
+
+const matrix = {
+  'Product Manager': {
+    1: {
+      blind: ['No usas AI en la toma de decisiones reales de producto', 'Los PRDs y specs los sigues escribiendo 100% manual', 'El uso es esporádico, no parte de tu proceso'],
+      next: ['Escribe tu próximo PRD con Claude como co-autor: dale el contexto del problema y pídele estructura, trade-offs y preguntas abiertas', 'Antes de cada sesión de planning, pásale el contexto a Claude y pídele las 3 preguntas más críticas que deberías hacerle al equipo'],
+      ohana: [{t:'Claude 101 · Empezar a usar Claude en tu trabajo',u:'https://anthropic.skilljar.com/claude-101'},{t:'AI Fluency: Framework & Foundations',u:'https://anthropic.skilljar.com/ai-fluency-framework-foundations'}]
+    },
+    2: {
+      blind: ['El uso sigue siendo reactivo: cuando estás atascado, no como práctica sistemática', 'No tienes prompts reutilizables para tus tareas más frecuentes', 'Usas AI individualmente pero no multiplicas lo que aprendes'],
+      next: ['Construye un prompt template para tus 3 tareas más recurrentes (prep de sprint planning, análisis de métricas, resumen de feedback)', 'Comparte uno de esos templates con al menos otro PM del equipo esta semana'],
+      ohana: [{t:'AI Fluency: Framework & Foundations',u:'https://anthropic.skilljar.com/ai-fluency-framework-foundations'},{t:'Claude 101 · Casos de uso para trabajo diario',u:'https://anthropic.skilljar.com/claude-101'}]
+    },
+    3: {
+      blind: ['Puede que no uses AI para decisiones de alto impacto (roadmap, priorización estratégica)', 'No has definido estándares de uso de AI para tu squad'],
+      next: ['Usa Claude para desafiar tu propio roadmap: dale contexto del negocio, métricas y restricciones, y pídele que te proponga prioridades alternativas con su razonamiento', 'Propón una práctica de equipo: cada semana comparten un prompt o flujo que funcionó'],
+      ohana: [{t:'AI Fluency: Framework & Foundations · Sección avanzada',u:'https://anthropic.skilljar.com/ai-fluency-framework-foundations'},{t:'Introduction to MCP · Conecta Claude con tus herramientas',u:'https://anthropic.skilljar.com/introduction-to-model-context-protocol'}]
+    }
+  },
+  'Ingeniero / Developer': {
+    1: {
+      blind: ['No tienes Cursor configurado como parte real de tu entorno de trabajo', 'Sigues escribiendo código desde cero sin apoyo de AI para boilerplate o patrones repetitivos', 'No has usado AI para revisión de código ni para debug sistemático'],
+      next: ['Configura Cursor con contexto de tu proyecto (.cursorrules) y úsalo en tu próximo ticket desde el inicio', 'La próxima vez que tengas un bug difícil, antes de preguntar a un colega, pásaselo a Claude con el error completo y el contexto del sistema'],
+      ohana: [{t:'Claude Code in Action · Agentic workflow para devs',u:'https://anthropic.skilljar.com/claude-code-in-action'},{t:'Claude 101 · Primeros pasos',u:'https://anthropic.skilljar.com/claude-101'}]
+    },
+    2: {
+      blind: ['No has construido scripts o automatizaciones que otros puedan usar', 'Usas AI para implementación pero no para decisiones de arquitectura', 'El uso es individual, no has compartido flujos ni herramientas con el equipo'],
+      next: ['Construye un script o automatización con AI que resuelva un problema repetitivo de tu equipo (generación de datos de prueba, automatización de CI, etc.)', 'En tu próxima code review, usa AI para hacer la primera pasada y documenta qué encontró vs. qué encontraste tú'],
+      ohana: [{t:'Building with the Claude API',u:'https://anthropic.skilljar.com/claude-with-the-anthropic-api'},{t:'Introduction to MCP',u:'https://anthropic.skilljar.com/introduction-to-model-context-protocol'},{t:'Introduction to Agent Skills',u:'https://anthropic.skilljar.com/introduction-to-agent-skills'}]
+    },
+    3: {
+      blind: ['Puede que no uses AI para decisiones de arquitectura de alto nivel o diseño de sistemas', 'No has documentado ni estandarizado los flujos que construiste para que otros los adopten'],
+      next: ['Documenta uno de tus flujos de AI como un runbook interno que cualquier ingeniero del equipo pueda seguir sin ayuda', 'Propón un "AI office hours" semanal donde el equipo comparte lo que funcionó y lo que no'],
+      ohana: [{t:'MCP: Advanced Topics · Producción',u:'https://anthropic.skilljar.com/model-context-protocol-advanced-topics'},{t:'Introduction to Agent Skills',u:'https://anthropic.skilljar.com/introduction-to-agent-skills'},{t:'Building with the Claude API · Tool use y agentes',u:'https://anthropic.skilljar.com/claude-with-the-anthropic-api'}]
+    }
+  },
+  'Diseñador / UX': {
+    1: {
+      blind: ['No integras AI en tu proceso de diseño: discovery, ideación ni iteración', 'No usas AI para sintetizar research o feedback de usuarios', 'Sigues haciendo benchmarking y análisis competitivo 100% manual'],
+      next: ['La próxima vez que hagas benchmarking, usa Claude para sintetizar patrones de 5+ competidores: dale las descripciones y pídele un análisis estructurado', 'Usa AI para generar 10 variantes de copy para tu próximo componente de UI antes de elegir'],
+      ohana: [{t:'Claude 101 · Usar Claude en tu trabajo diario',u:'https://anthropic.skilljar.com/claude-101'},{t:'AI Fluency: Framework & Foundations',u:'https://anthropic.skilljar.com/ai-fluency-framework-foundations'}]
+    },
+    2: {
+      blind: ['No usas AI para síntesis cuantitativa de feedback a escala', 'El uso es principalmente para output visual, no para decisiones de diseño', 'No compartes flujos ni aprendizajes con otros diseñadores del equipo'],
+      next: ['Toma tu próxima ronda de feedback de usuarios y usa Claude para identificar patrones, contradicciones y señales débiles que podrías estar ignorando', 'Construye un prompt reutilizable para critique propio: úsalo para evaluar tus diseños antes de presentarlos al equipo'],
+      ohana: [{t:'AI Fluency: Framework & Foundations',u:'https://anthropic.skilljar.com/ai-fluency-framework-foundations'},{t:'Claude 101 · Flujos de trabajo con AI',u:'https://anthropic.skilljar.com/claude-101'}]
+    },
+    3: {
+      blind: ['Puede que no uses AI para medir el impacto de tus decisiones de diseño en métricas de negocio', 'No has propuesto estándares de uso de AI para el sistema de diseño del equipo'],
+      next: ['Propón usar AI para evaluar accesibilidad y consistencia del sistema de diseño de forma semi-automatizada', 'Crea una guía de "prompts para diseñadores" que el equipo pueda usar como punto de partida en cualquier proyecto'],
+      ohana: [{t:'Introduction to MCP · Conecta Claude con tus herramientas de diseño',u:'https://anthropic.skilljar.com/introduction-to-model-context-protocol'},{t:'AI Fluency: Framework & Foundations · Avanzado',u:'https://anthropic.skilljar.com/ai-fluency-framework-foundations'}]
+    }
+  },
+  'Business Analyst / Data': {
+    1: {
+      blind: ['No usas AI para interpretar resultados ni generar hipótesis, solo para consultas puntuales', 'Los reportes los sigues construyendo manualmente sin apoyo de AI', 'No has explorado AI para automatizar análisis recurrentes'],
+      next: ['Toma tu próximo reporte recurrente y descríbele el proceso a Claude: pídele que identifique qué partes se pueden automatizar o acelerar con AI', 'Usa Claude para interpretar un set de resultados: dale los números y pídele 3 hipótesis que explicarían lo que ves'],
+      ohana: [{t:'Claude 101 · Analizar datos y documentos con Claude',u:'https://anthropic.skilljar.com/claude-101'},{t:'AI Fluency: Framework & Foundations',u:'https://anthropic.skilljar.com/ai-fluency-framework-foundations'}]
+    },
+    2: {
+      blind: ['Los dashboards e insights siguen siendo reactivos: no usas AI para identificar anomalías proactivamente', 'No has conectado AI directamente a fuentes de datos del negocio', 'No compartes flujos de análisis con el equipo'],
+      next: ['Configura un flujo donde Claude revise tus métricas clave semanalmente y te genere un briefing con señales que merecen atención', 'Comparte con tu equipo un análisis donde AI encontró algo que tú no habías notado: genera credibilidad y adoption orgánica'],
+      ohana: [{t:'Building with the Claude API · Tool use y RAG',u:'https://anthropic.skilljar.com/claude-with-the-anthropic-api'},{t:'Introduction to MCP · Conecta Claude a tus fuentes de datos',u:'https://anthropic.skilljar.com/introduction-to-model-context-protocol'}]
+    },
+    3: {
+      blind: ['Puede que no uses AI para análisis predictivo o simulación de escenarios de negocio', 'No has documentado ni escalado tus flujos para que otros BAs los adopten'],
+      next: ['Usa AI para simular 3 escenarios de negocio distintos basados en tus métricas actuales y preséntalo en el próximo sprint review', 'Documenta tu flujo de análisis con AI como un playbook que cualquier BA del equipo pueda replicar en menos de 30 minutos'],
+      ohana: [{t:'MCP: Advanced Topics',u:'https://anthropic.skilljar.com/model-context-protocol-advanced-topics'},{t:'Building with the Claude API · Agentes y RAG',u:'https://anthropic.skilljar.com/claude-with-the-anthropic-api'}]
+    }
+  },
+  'Researcher': {
+    1: {
+      blind: ['No usas AI para análisis sistemático de grandes volúmenes de feedback', 'El proceso de síntesis de research sigue siendo mayormente manual', 'No has explorado AI para identificar patrones o sesgos en tu research'],
+      next: ['Toma las transcripciones de tus últimas 5 entrevistas y usa Claude para identificar temas emergentes, contradicciones y citas clave', 'Usa AI para revisar tu próxima guía de entrevista: pídele que identifique preguntas sesgadas o que limitan las respuestas de los usuarios'],
+      ohana: [{t:'Claude 101 · Resumir y analizar documentos con Claude',u:'https://anthropic.skilljar.com/claude-101'},{t:'AI Fluency: Framework & Foundations',u:'https://anthropic.skilljar.com/ai-fluency-framework-foundations'}]
+    },
+    2: {
+      blind: ['No usas AI para triangular entre fuentes cuantitativas y cualitativas', 'El research sigue siendo un proceso individual, no has escalado insights al equipo con AI', 'No tienes flujos estandarizados de research con AI'],
+      next: ['En tu próximo proyecto, usa Claude para cruzar los insights cualitativos de entrevistas con datos cuantitativos y busca contradicciones o confirmaciones', 'Construye un template de síntesis de research con AI que cualquier persona del equipo pueda usar para hacer research más liviano'],
+      ohana: [{t:'AI Fluency: Framework & Foundations',u:'https://anthropic.skilljar.com/ai-fluency-framework-foundations'},{t:'Claude 101 · Flujos avanzados de trabajo con AI',u:'https://anthropic.skilljar.com/claude-101'}]
+    },
+    3: {
+      blind: ['Puede que no uses AI para research continuo (siempre-encendido) vs. proyectos puntuales', 'No has propuesto estándares de calidad y ética en el uso de AI para research en el equipo'],
+      next: ['Diseña un sistema de research continuo con AI: monitoreo de señales de usuarios en tiempo real, no solo cuando hay un proyecto activo', 'Propón una guía de ética y calidad en el uso de AI para research: qué validar siempre, qué nunca delegar a AI'],
+      ohana: [{t:'AI Fluency: Framework & Foundations · Ética y límites de AI',u:'https://anthropic.skilljar.com/ai-fluency-framework-foundations'},{t:'Introduction to MCP · Automatiza flujos de research',u:'https://anthropic.skilljar.com/introduction-to-model-context-protocol'}]
+    }
+  }
+};
+
+let answers = {};
+let currentQ = 0;
+let selectedValues = {};
+
+function startQuiz() {
+  show('screen-quiz');
+  renderQuestion();
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function renderProgress() {
+  const total = questions.length;
+  const stepsEl = document.getElementById('progressSteps');
+  stepsEl.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot' + (i < currentQ ? ' done' : i === currentQ ? ' active' : '');
+    dot.textContent = i < currentQ ? '✓' : i + 1;
+    stepsEl.appendChild(dot);
+    if (i < total - 1) {
+      const line = document.createElement('div');
+      line.className = 'step-line' + (i < currentQ ? ' done' : '');
+      stepsEl.appendChild(line);
+    }
+  }
+  document.getElementById('progressLabel').textContent = `Pregunta ${currentQ + 1} de ${total}`;
+}
+
+function renderQuestion() {
+  renderProgress();
+  const q = questions[currentQ];
+  const saved = selectedValues[q.id] || [];
+  const container = document.getElementById('questionContainer');
+
+  let optionsHtml = '';
+  if (q.type === 'radio' || q.type === 'checkbox') {
+    optionsHtml = `<div class="options">` + q.options.map((o, i) => {
+      const isSelected = saved.includes(i);
+      const isExclusive = o.exclusive;
+      return `<button class="option ${q.type}${isSelected ? ' selected' : ''}${isExclusive ? ' exclusive' : ''}" onclick="selectOption('${q.id}', ${i}, '${q.type}', ${!!o.exclusive})">
+        <span class="opt-indicator"></span>
+        <span><span class="opt-text">${o.text}</span>${o.sub ? `<br><span class="opt-sub">${o.sub}</span>` : ''}</span>
+      </button>`;
+    }).join('') + `</div>`;
+  }
+
+  container.innerHTML = `<div class="q-card">
+    <p class="q-eyebrow">${q.eyebrow}</p>
+    <h2 class="q-title">${q.title}</h2>
+    ${q.hint ? `<p class="q-hint">${q.hint}</p>` : ''}
+    ${optionsHtml}
+  </div>`;
+
+  updateNextBtn();
+  document.getElementById('btnBack').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+  const isLast = currentQ === questions.length - 1;
+  document.getElementById('btnNext').textContent = isLast ? 'Ver mi resultado →' : 'Siguiente →';
+}
+
+function selectOption(qId, idx, type, exclusive) {
+  if (!selectedValues[qId]) selectedValues[qId] = [];
+  if (type === 'radio') {
+    selectedValues[qId] = [idx];
+  } else {
+    if (exclusive) {
+      selectedValues[qId] = selectedValues[qId].includes(idx) ? [] : [idx];
+    } else {
+      selectedValues[qId] = selectedValues[qId].filter(i => {
+        const opt = questions.find(q => q.id === qId).options[i];
+        return !opt.exclusive;
+      });
+      const pos = selectedValues[qId].indexOf(idx);
+      if (pos > -1) selectedValues[qId].splice(pos, 1);
+      else selectedValues[qId].push(idx);
+    }
+  }
+  document.querySelectorAll('.option').forEach((el, i) => {
+    el.classList.toggle('selected', selectedValues[qId].includes(i));
+  });
+  updateNextBtn();
+}
+
+function updateNextBtn() {
+  const q = questions[currentQ];
+  const hasAnswer = selectedValues[q.id] && selectedValues[q.id].length > 0;
+  document.getElementById('btnNext').disabled = !hasAnswer;
+}
+
+function goNext() {
+  const q = questions[currentQ];
+  answers[q.id] = selectedValues[q.id];
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function goBack() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); }
+}
+
+function computeScore() {
+  let total = 0, max = 0;
+  ['frecuencia', 'profundidad', 'impacto', 'criterio', 'integracion', 'multiplicar'].forEach(id => {
+    const q = questions.find(q => q.id === id);
+    if (!q.scores) return;
+    max += Math.max(...q.scores);
+    const sel = answers[id] || [];
+    if (sel.length > 0) total += q.scores[sel[0]];
+  });
+  return Math.round((total / max) * 100);
+}
+
+function computeHabitos() {
+  const sel = answers['integracion'] || [];
+  const mul = answers['multiplicar'] || [];
+  const i = sel.length > 0 ? sel[0] : 0;
+  const m = mul.length > 0 ? mul[0] : 0;
+  return Math.round(((i + m) / 6) * 100);
+}
+
+function getTrack(score) {
+  if (score <= 40) return 1;
+  if (score <= 70) return 2;
+  return 3;
+}
+
+function getRole() {
+  const idx = answers['role'] ? answers['role'][0] : 0;
+  return questions[0].options[idx].text;
+}
+
+function getBarrera() {
+  const idx = answers['barrera'] ? answers['barrera'][0] : 4;
+  return questions.find(q => q.id === 'barrera').options[idx].text;
+}
+
+function ringPath(pct, color) {
+  const r = 26, cx = 32, cy = 32, circ = 2 * Math.PI * r;
+  const offset = circ - (pct / 100) * circ;
+  return `<svg width="64" height="64" viewBox="0 0 64 64">
+    <circle class="bg" cx="${cx}" cy="${cy}" r="${r}" stroke="#f1f3f5" stroke-width="5" fill="none"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" stroke="${color}" stroke-width="5" fill="none"
+      stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"
+      transform="rotate(-90 ${cx} ${cy})"/>
+  </svg>`;
+}
+
+const APPS_SCRIPT_URL = 'https://script.google.com/a/macros/nubank.com.br/s/AKfycbymHnquPcTnXQJ2IAh5BC3IYQWgLPnm6U2XiZPGNIBMj4GVlQzA7q-YCuUKlmd3bkYj5g/exec'; // ← pega aquí la URL del Apps Script
+
+function sendToSheets(payload) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'TU_URL_AQUI') return;
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+}
+
+function showResult() {
+  const score = computeScore();
+  const habitos = computeHabitos();
+  const track = getTrack(score);
+  const role = getRole();
+  const barrera = getBarrera();
+  const rec = matrix[role] ? matrix[role][track] : matrix['Product Manager'][track];
+
+  sendToSheets({
+    rol: role,
+    frecuencia: questions.find(q=>q.id==='frecuencia').options[answers['frecuencia']?.[0]??0].text,
+    profundidad: questions.find(q=>q.id==='profundidad').options[answers['profundidad']?.[0]??0].text,
+    impacto: questions.find(q=>q.id==='impacto').options[answers['impacto']?.[0]??0].text,
+    criterio: questions.find(q=>q.id==='criterio').options[answers['criterio']?.[0]??0].text,
+    integracion: questions.find(q=>q.id==='integracion').options[answers['integracion']?.[0]??0].text,
+    multiplicar: questions.find(q=>q.id==='multiplicar').options[answers['multiplicar']?.[0]??0].text,
+    barrera: barrera,
+    score: score,
+    habitos: habitos,
+    track: 'Track ' + track
+  });
+
+  const trackConfig = {
+    1: { name: 'Track 1', label: 'Explorador', desc: 'Estás dando los primeros pasos reales con AI. Hay mucho potencial sin explotar: aquí te decimos exactamente qué hacer primero.', color: '#00b894', bg: 'linear-gradient(135deg, #00b894, #00cec9)', badgeBg: '#e8faf5', badgeColor: '#006d55' },
+    2: { name: 'Track 2', label: 'Practicante', desc: 'Ya construyes con AI. Es momento de pasar de usuario a creador de flujos que impactan al equipo, no solo a ti.', color: '#0984e3', bg: 'linear-gradient(135deg, #0984e3, #74b9ff)', badgeBg: '#e8f4fd', badgeColor: '#055fa3' },
+    3: { name: 'Track 3', label: 'Multiplicador', desc: 'Eres referente de AI en el equipo. Tu reto ahora es diseñar cómo el equipo entero sube de nivel contigo.', color: '#6C5CE7', bg: 'linear-gradient(135deg, #6C5CE7, #a29bfe)', badgeBg: '#f0eeff', badgeColor: '#4a3cb8' }
+  };
+  const tc = trackConfig[track];
+
+  document.getElementById('resultContent').innerHTML = `
+    <div class="result-header">
+      <span class="result-badge" style="background:${tc.badgeBg};color:${tc.badgeColor}">${role}</span>
+    </div>
+
+    <div class="result-track-banner" style="background:${tc.bg};color:#fff">
+      <p style="font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;opacity:.8;margin-bottom:.5rem">Tu resultado</p>
+      <p class="result-track-name">${tc.name} · ${tc.label}</p>
+      <p class="result-track-desc">${tc.desc}</p>
+    </div>
+
+    <div class="scores-grid">
+      <div class="score-card">
+        <p class="score-label">Adopción de AI</p>
+        <div class="score-ring">${ringPath(score, tc.color)}</div>
+        <p class="score-num">${score}%</p>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:4px">Preguntas 2 a 7</p>
+      </div>
+      <div class="score-card">
+        <p class="score-label">Hábitos & Flujo</p>
+        <div class="score-ring">${ringPath(habitos, tc.color)}</div>
+        <p class="score-num">${habitos}%</p>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:4px">Integración y multiplicación</p>
+      </div>
+    </div>
+
+    <div class="rec-section">
+      <p class="rec-section-title" style="color:#e17055">🚧 Tu punto ciego como ${role.split('/')[0].trim()}</p>
+      ${rec.blind.map(b => `<div class="rec-item"><span class="rec-dot" style="background:#e17055"></span>${b}</div>`).join('')}
+    </div>
+
+    <div class="rec-section">
+      <p class="rec-section-title" style="color:${tc.color}">🎯 Tu próximo paso concreto</p>
+      ${rec.next.map(n => `<div class="rec-item"><span class="rec-dot" style="background:${tc.color}"></span>${n}</div>`).join('')}
+    </div>
+
+    <div class="rec-section">
+      <p class="rec-section-title" style="color:#636e72">🔗 En Ohana te recomendamos</p>
+      ${rec.ohana.map(o => typeof o === 'object' ? `<a href="${o.u}" target="_blank" class="ohana-tag" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">${o.t} ↗</a>` : `<span class="ohana-tag">${o}</span>`).join('')}
+    </div>
+
+    ${barrera !== 'Ya la uso bastante, mi barrera es otra' ? `
+    <div class="rec-section">
+      <p class="rec-section-title" style="color:#636e72">💬 Sobre tu barrera actual</p>
+      <div class="rec-item"><span class="rec-dot" style="background:#6C5CE7"></span>Mencionaste: <em>"${barrera}"</em> — esto es exactamente lo que el programa Ohana está diseñado para resolver. Úsalo.</div>
+    </div>` : ''}
+  `;
+
+  show('screen-result');
+}
+
+function restart() {
+  answers = {};
+  selectedValues = {};
+  currentQ = 0;
+  show('screen-intro');
+}
+</script>
+</body>
+</html>
