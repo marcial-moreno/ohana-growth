@@ -278,7 +278,7 @@
     <span class="track-pill t2">Track 2 · Practicante</span>
     <span class="track-pill t3">Track 3 · Multiplicador</span>
   </div>
-  <p class="meta"><span>~3 min</span>·<span>8 preguntas</span>·<span>100% anónimo</span></p>
+  <p class="meta"><span>~3 min</span>·<span>9 preguntas</span>·<span>100% anónimo</span></p>
   <div style="background:#f0eeff;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;text-align:left;">
     <p style="font-size:13px;color:#4a3cb8;line-height:1.6;margin:0">
       <strong>Antes de empezar:</strong> No hay respuestas correctas ni incorrectas. Este diagnóstico solo es útil si respondes con honestidad sobre dónde estás hoy — no donde quisieras estar. Nadie va a juzgarte por tu resultado; al contrario, entre más preciso seas, más útil será la recomendación que recibas.
@@ -409,7 +409,7 @@ const questions = [
   },
   {
     id: 'barrera',
-    eyebrow: 'Pregunta 8 · Tu mayor barrera',
+    eyebrow: 'Pregunta 9 · Tu mayor barrera',
     title: '¿Cuál es tu mayor obstáculo para usar más AI con impacto real?',
     hint: 'Una sola respuesta, la que más resuene con tu situación actual.',
     type: 'radio',
@@ -420,7 +420,21 @@ const questions = [
       { text: 'El contexto de datos/seguridad me limita', sub: 'No sé qué puedo y no puedo hacer con herramientas de AI' },
       { text: 'Ya la uso bastante, mi barrera es otra', sub: '' },
     ]
-  }
+  },
+  {
+    id: 'emocion',
+    eyebrow: 'Pregunta 8 · Cómo te sientes',
+    title: 'Antes de irte, hablemos de ti: ¿cómo te sientes con la revolución de AI que estamos viviendo en Nubank?',
+    hint: 'No hay respuesta correcta. Esta pregunta es solo para entenderte mejor.',
+    type: 'radio',
+    options: [
+      { text: '🚀 Estoy en el tren y disfrutando el viaje', sub: 'Me siento cómodo/a con el ritmo' },
+      { text: '🏃 Voy corriendo para alcanzarlo', sub: 'Quiero estar ahí pero siento que me falta' },
+      { text: '😮‍💨 Lo veo pasar y no sé por dónde subirme', sub: 'Hay mucho y no sé por dónde empezar' },
+      { text: '😰 Me genera más ansiedad que emoción', sub: 'Siento presión y no sé si voy al ritmo que se espera' },
+      { text: '🤷 No sé muy bien cómo me siento todavía', sub: 'Necesito más contexto para opinar' },
+    ]
+  },
 ];
 
 const matrix = {
@@ -650,6 +664,16 @@ function getRole() {
   return questions[0].options[idx].text;
 }
 
+function getEmocion() {
+  const idx = answers['emocion'] ? answers['emocion'][0] : 0;
+  return questions.find(q => q.id === 'emocion').options[idx].text;
+}
+
+function getEmocionSub() {
+  const idx = answers['emocion'] ? answers['emocion'][0] : 0;
+  return questions.find(q => q.id === 'emocion').options[idx].sub;
+}
+
 function getBarrera() {
   const idx = answers['barrera'] ? answers['barrera'][0] : 4;
   return questions.find(q => q.id === 'barrera').options[idx].text;
@@ -678,6 +702,31 @@ function sendToSheets(payload) {
   }).catch(() => {});
 }
 
+function renderEmocion() {
+  const emocion = getEmocion();
+  const msgs = {
+    'tren': { emoji: '🚀', msg: 'Eso se nota y es valioso. Tu energía con AI es exactamente lo que el equipo necesita. El siguiente paso es canalizarla para que otros también suban al tren contigo.' },
+    'corriendo': { emoji: '🏃', msg: 'Esa sensación de querer estar ahí es el mejor punto de partida. No estás atrasado/a — estás en movimiento. Con los recursos correctos y un poco de foco, la brecha se cierra rápido.' },
+    'pasar': { emoji: '😮', msg: 'Completamente válido. Hay mucho ruido alrededor de AI y es normal sentirse perdido/a. El programa Ohana existe exactamente para esto: darte un punto de entrada claro, sin abrumarte.' },
+    'ansiedad': { emoji: '😰', msg: 'Gracias por la honestidad — eso toma valor. La presión que sientes es real, y no estás solo/a. Lo más importante: adoptar AI no es una competencia. Es un proceso, y cada persona tiene su ritmo. Ohana está aquí para acompañarte, no para calificarte.' },
+    'todavía': { emoji: '🤷', msg: 'Eso también es una respuesta válida. No tienes que tener una opinión formada sobre algo que todavía está tomando forma. Lo que sí puedes hacer es empezar a experimentar sin presión y ver cómo te va.' }
+  };
+  let cfg = msgs['todavía'];
+  if (emocion.includes('tren')) cfg = msgs['tren'];
+  else if (emocion.includes('corriendo')) cfg = msgs['corriendo'];
+  else if (emocion.includes('pasar') || emocion.includes('subirme')) cfg = msgs['pasar'];
+  else if (emocion.includes('ansiedad') || emocion.includes('ansied')) cfg = msgs['ansiedad'];
+  const parts = emocion.split(' ');
+  const emoji = parts[0];
+  const label = parts.slice(1).join(' ');
+  return '<div style="display:flex;gap:12px;align-items:flex-start">'
+    + '<span style="font-size:1.5rem;flex-shrink:0">' + emoji + '</span>'
+    + '<div>'
+    + '<p style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:6px">' + label + '</p>'
+    + '<p style="font-size:13px;line-height:1.6;color:var(--text-muted)">' + cfg.msg + '</p>'
+    + '</div></div>';
+}
+
 function showResult() {
   const score = computeScore();
   const habitos = computeHabitos();
@@ -695,6 +744,7 @@ function showResult() {
     integracion: questions.find(q=>q.id==='integracion').options[answers['integracion']?.[0]??0].text,
     multiplicar: questions.find(q=>q.id==='multiplicar').options[answers['multiplicar']?.[0]??0].text,
     barrera: barrera,
+    emocion: getEmocion(),
     score: score,
     habitos: habitos,
     track: 'Track ' + track
@@ -746,6 +796,11 @@ function showResult() {
     <div class="rec-section">
       <p class="rec-section-title" style="color:#636e72">🔗 En Ohana te recomendamos</p>
       ${rec.ohana.map(o => typeof o === 'object' ? `<a href="${o.u}" target="_blank" class="ohana-tag" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">${o.t} ↗</a>` : `<span class="ohana-tag">${o}</span>`).join('')}
+    </div>
+
+    <div class="rec-section">
+      <p class="rec-section-title" style="color:#636e72">💙 Cómo te sientes</p>
+      ${renderEmocion()}
     </div>
 
     ${barrera !== 'Ya la uso bastante, mi barrera es otra' ? `
